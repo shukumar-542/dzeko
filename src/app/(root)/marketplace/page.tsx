@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ChevronRight, Search, ShoppingCart, SlidersHorizontal, X } from "lucide-react";
@@ -8,174 +9,66 @@ import { ROUTES } from "@/constants";
 import { useAppDispatch } from "@/store/hooks";
 import { addToCart } from "@/store/slices/cartSlice";
 import PageHero from "@/components/common/PageHero";
-import { cn } from "@/lib/utils";
+import { useGetProductsQuery, type Product } from "@/store/apis";
 
-const CATEGORIES: Record<string, string[]> = {
-  "All Products": [],
-  "Scientific Calculators": ["Graphing", "Scientific", "Basic"],
-  Books: ["Textbooks", "Study Guides", "Reference"],
-  "School Bags": ["Backpacks", "Messenger Bags", "Pouches"],
-  Notebooks: ["Ruled", "Grid", "Blank"],
-  "Geometry & Math Tools": ["Sets", "Protractors", "Rulers"],
-  Stationery: ["Pens", "Highlighters", "Markers"],
-  "Study Accessories": ["Organizers", "Lamps", "Timers"],
-};
+const EDUCATION_FILTERS = [
+  { key: "all", label: "All Products" },
+  { key: "inStock", label: "In Stock" },
+  { key: "hasDiscount", label: "On Sale" },
+] as const;
 
-const EDUCATION_LEVELS = ["All Levels", "School", "High School", "University"];
-
-const PRODUCTS = [
-  {
-    id: "1",
-    name: "Texas Instruments TI-84 Plus",
-    category: "Scientific Calculators",
-    sub: "Graphing",
-    level: "University",
-    desc: "Graphing calculator for advanced mathematics and sciences",
-    price: 119.99,
-    badge: null,
-  },
-  {
-    id: "2",
-    name: "Premium Student Backpack",
-    category: "School Bags",
-    sub: "Backpacks",
-    level: "School",
-    desc: "Durable backpack with laptop compartment",
-    price: 49.99,
-    badge: null,
-  },
-  {
-    id: "3",
-    name: "Professional Geometry Set",
-    category: "Geometry & Math Tools",
-    sub: "Sets",
-    level: "High School",
-    desc: "Complete geometry tool set for students",
-    price: 16.99,
-    badge: null,
-  },
-  {
-    id: "4",
-    name: "Casio FX-991EX Scientific Calculator",
-    category: "Scientific Calculators",
-    sub: "Scientific",
-    level: "High School",
-    desc: "Advanced scientific calculator for high school and university",
-    price: 34.99,
-    badge: "Best Sale",
-  },
-  {
-    id: "5",
-    name: "Physics Fundamentals Textbook",
-    category: "Books",
-    sub: "Textbooks",
-    level: "University",
-    desc: "Essential physics textbook for science students",
-    price: 39.99,
-    badge: "Best Sale",
-  },
-  {
-    id: "6",
-    name: "A4 Ruled Notebook Set",
-    category: "Notebooks",
-    sub: "Ruled",
-    level: "School",
-    desc: "Set of 3 premium quality notebooks",
-    price: 12.99,
-    badge: "Best Sale",
-  },
-  {
-    id: "7",
-    name: "Complete Mathematics Study Guide",
-    category: "Books",
-    sub: "Study Guides",
-    level: "High School",
-    desc: "Comprehensive mathematics reference for students",
-    price: 29.99,
-    badge: "New Arrival",
-  },
-  {
-    id: "8",
-    name: "Classic Messenger Bag",
-    category: "School Bags",
-    sub: "Messenger Bags",
-    level: "University",
-    desc: "Professional messenger bag for university students",
-    price: 34.99,
-    badge: null,
-  },
-  {
-    id: "9",
-    name: "Grid Notebook for Mathematics",
-    category: "Notebooks",
-    sub: "Grid",
-    level: "High School",
-    desc: "Grid notebook for math and technical drawing",
-    price: 8.99,
-    badge: null,
-  },
-  {
-    id: "10",
-    name: "Digital Protractor",
-    category: "Geometry & Math Tools",
-    sub: "Protractors",
-    level: "University",
-    desc: "Electronic angle measurement tool",
-    price: 24.99,
-    badge: "New Arrival",
-  },
-  {
-    id: "11",
-    name: "Premium Pen Set",
-    category: "Stationery",
-    sub: "Pens",
-    level: "School",
-    desc: "Set of 10 high-quality ballpoint pens",
-    price: 14.99,
-    badge: null,
-  },
-  {
-    id: "12",
-    name: "Highlighter Marker Set",
-    category: "Stationery",
-    sub: "Highlighters",
-    level: "School",
-    desc: "6-color highlighter set for studying",
-    price: 9.99,
-    badge: null,
-  },
-];
-
-const BADGE_STYLE: Record<string, string> = {
-  "Best Sale": "bg-primary text-white",
-  "New Arrival": "bg-primary text-white",
-};
-
-const PRICE_MIN = 8;
-const PRICE_MAX = 120;
-
-type Product = (typeof PRODUCTS)[number];
+const PRICE_MIN = 0;
+const PRICE_MAX = 200;
 
 export default function MarketplacePage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
   const [search, setSearch] = useState("");
-  const [activeCat, setActiveCat] = useState("All Products");
-  const [activeSub, setActiveSub] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [activeCategory, setActiveCategory] = useState("All Products");
   const [expandedCat, setExpandedCat] = useState("");
-  const [activeLevel, setActiveLevel] = useState("All Levels");
+  const [availability, setAvailability] = useState<(typeof EDUCATION_FILTERS)[number]["key"]>(
+    "all"
+  );
   const [minPrice, setMinPrice] = useState(PRICE_MIN);
   const [maxPrice, setMaxPrice] = useState(PRICE_MAX);
   const [showFilters, setShowFilters] = useState(false);
   const [visibleCount, setVisibleCount] = useState(9);
 
+  // Search input debounce, jate protita keystroke a API call na hoy
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search.trim()), 400);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  const { data, isLoading, isFetching, isError } = useGetProductsQuery({
+    page: 1,
+    limit: 100,
+    searchTerm: debouncedSearch || undefined,
+    minPrice: minPrice > PRICE_MIN ? minPrice : undefined,
+    maxPrice: maxPrice < PRICE_MAX ? maxPrice : undefined,
+    inStock: availability === "inStock" ? true : undefined,
+    hasDiscount: availability === "hasDiscount" ? true : undefined,
+  });
+
+  const products = useMemo(() => data?.data ?? [], [data]);
+
+  // Category list, product data theke dynamically ber kora
+  const categories = useMemo(() => {
+    const map = new Map<string, number>();
+    products.forEach((p) => {
+      const name = p.category?.name ?? "Uncategorized";
+      map.set(name, (map.get(name) ?? 0) + 1);
+    });
+    return Array.from(map.entries());
+  }, [products]);
+
   const minPct = ((minPrice - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100;
   const maxPct = ((maxPrice - PRICE_MIN) / (PRICE_MAX - PRICE_MIN)) * 100;
 
   function handleCatClick(cat: string) {
-    setActiveCat(cat);
-    setActiveSub("");
+    setActiveCategory((prev) => (prev === cat ? "All Products" : cat));
     setExpandedCat((prev) => (prev === cat ? "" : cat));
     setVisibleCount(9);
   }
@@ -183,58 +76,45 @@ export default function MarketplacePage() {
   function handleAddToCart(product: Product) {
     dispatch(
       addToCart({
-        id: product.id,
-        name: product.name,
+        id: product._id,
+        name: product.title,
         price: product.price,
-        category: product.category,
+        category: product.category?.name ?? "Uncategorized",
       })
     );
-  }
-
-  const filtered = useMemo(
-    () =>
-      PRODUCTS.filter((p) => {
-        const matchCat = activeCat === "All Products" || p.category === activeCat;
-        const matchSub = !activeSub || p.sub === activeSub;
-        const matchLevel = activeLevel === "All Levels" || p.level === activeLevel;
-        const matchPrice = p.price >= minPrice && p.price <= maxPrice;
-        const q = search.trim().toLowerCase();
-        const matchSearch =
-          !q ||
-          p.name.toLowerCase().includes(q) ||
-          p.category.toLowerCase().includes(q) ||
-          p.sub.toLowerCase().includes(q) ||
-          p.desc.toLowerCase().includes(q);
-
-        return matchCat && matchSub && matchLevel && matchPrice && matchSearch;
-      }),
-    [activeCat, activeSub, activeLevel, minPrice, maxPrice, search]
-  );
-
-  const visible = filtered.slice(0, visibleCount);
-
-  const hasActiveFilters =
-    activeCat !== "All Products" ||
-    activeSub !== "" ||
-    activeLevel !== "All Levels" ||
-    minPrice > PRICE_MIN ||
-    maxPrice < PRICE_MAX ||
-    search.trim() !== "";
-
-  function resetFilters() {
-    setActiveCat("All Products");
-    setActiveSub("");
-    setExpandedCat("");
-    setActiveLevel("All Levels");
-    setMinPrice(PRICE_MIN);
-    setMaxPrice(PRICE_MAX);
-    setSearch("");
-    setVisibleCount(9);
   }
 
   function handleBuyNow(product: Product) {
     handleAddToCart(product);
     router.push(ROUTES.CHECKOUT);
+  }
+
+  const filtered = useMemo(
+    () =>
+      products.filter((p) => {
+        const matchCat = activeCategory === "All Products" || p.category?.name === activeCategory;
+        return matchCat && !p.isDeleted;
+      }),
+    [products, activeCategory]
+  );
+
+  const visible = filtered.slice(0, visibleCount);
+
+  const hasActiveFilters =
+    activeCategory !== "All Products" ||
+    availability !== "all" ||
+    minPrice > PRICE_MIN ||
+    maxPrice < PRICE_MAX ||
+    search.trim() !== "";
+
+  function resetFilters() {
+    setActiveCategory("All Products");
+    setExpandedCat("");
+    setAvailability("all");
+    setMinPrice(PRICE_MIN);
+    setMaxPrice(PRICE_MAX);
+    setSearch("");
+    setVisibleCount(9);
   }
 
   function handleMinPriceChange(value: number) {
@@ -338,104 +218,77 @@ export default function MarketplacePage() {
                   <span>${minPrice}</span>
                   <span className="text-primary font-semibold">${maxPrice}</span>
                 </div>
-
-                <div className="mt-3 flex flex-wrap gap-1.5">
-                  {[25, 50, 80, 120].map((cap) => (
-                    <button
-                      key={cap}
-                      type="button"
-                      onClick={() => {
-                        setMinPrice(PRICE_MIN);
-                        setMaxPrice(cap);
-                        setVisibleCount(9);
-                      }}
-                      className={`rounded-full border px-2.5 py-1 text-xs font-medium ${
-                        maxPrice === cap && minPrice === PRICE_MIN
-                          ? "border-primary bg-primary text-white"
-                          : "border-gray-200 bg-white text-gray-600"
-                      }`}
-                    >
-                      Under ${cap}
-                    </button>
-                  ))}
-                </div>
               </div>
 
-              {/* Categories */}
+              {/* Categories - dynamically from API data */}
               <div className="mb-5">
                 <h4 className="mb-2 text-xs font-semibold tracking-wide text-gray-500 uppercase">
                   Categories
                 </h4>
                 <ul className="space-y-0.5">
-                  {Object.entries(CATEGORIES).map(([cat, subs]) => (
-                    <li key={cat}>
-                      <button
-                        onClick={() => handleCatClick(cat)}
-                        type="button"
-                        className={`flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-left text-xs ${
-                          activeCat === cat ? "bg-primary text-white" : "text-gray-600"
+                  <li>
+                    <button
+                      onClick={() => {
+                        setActiveCategory("All Products");
+                        setExpandedCat("");
+                        setVisibleCount(9);
+                      }}
+                      type="button"
+                      className={`flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-left text-xs ${
+                        activeCategory === "All Products" ? "bg-primary text-white" : "text-gray-600"
+                      }`}
+                    >
+                      <span>All Products</span>
+                      <span
+                        className={`text-[10px] ${
+                          activeCategory === "All Products" ? "text-white/70" : "text-gray-400"
                         }`}
                       >
-                        <span>{cat}</span>
-                        {subs.length > 0 && (
-                          <span
-                            className={`text-[10px] ${activeCat === cat ? "text-white/70" : "text-gray-400"}`}
-                          >
-                            <ChevronRight
-                              size={14}
-                              className={cn(
-                                "transition duration-200",
-                                expandedCat === cat ? "rotate-90" : "rotate-0"
-                              )}
-                            />
-                          </span>
-                        )}
+                        {products.length}
+                      </span>
+                    </button>
+                  </li>
+                  {categories.map(([name, count]) => (
+                    <li key={name}>
+                      <button
+                        onClick={() => handleCatClick(name)}
+                        type="button"
+                        className={`flex w-full items-center justify-between rounded-md px-2.5 py-1.5 text-left text-xs ${
+                          activeCategory === name ? "bg-primary text-white" : "text-gray-600"
+                        }`}
+                      >
+                        <span>{name}</span>
+                        <span
+                          className={`text-[10px] ${
+                            activeCategory === name ? "text-white/70" : "text-gray-400"
+                          }`}
+                        >
+                          {count}
+                        </span>
                       </button>
-
-                      {expandedCat === cat && subs.length > 0 && (
-                        <ul className="mt-0.5 ml-3 space-y-0.5">
-                          {subs.map((sub) => (
-                            <li key={sub}>
-                              <button
-                                type="button"
-                                onClick={() => {
-                                  setActiveSub((p) => (p === sub ? "" : sub));
-                                  setVisibleCount(9);
-                                }}
-                                className={`w-full rounded-md px-2.5 py-1 text-left text-xs ${
-                                  activeSub === sub ? "text-primary font-semibold" : "text-gray-500"
-                                }`}
-                              >
-                                {sub}
-                              </button>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
                     </li>
                   ))}
                 </ul>
               </div>
 
-              {/* Education level */}
               <div className="mb-4">
                 <h4 className="mb-2 text-xs font-semibold tracking-wide text-gray-500 uppercase">
-                  Education Level
+                  Availability
                 </h4>
                 <ul className="space-y-0.5">
-                  {EDUCATION_LEVELS.map((l) => (
-                    <li key={l}>
+                  {EDUCATION_FILTERS.map((f) => (
+                    <li key={f.key}>
                       <button
                         onClick={() => {
-                          setActiveLevel(l);
+                          setAvailability(f.key);
                           setVisibleCount(9);
                         }}
                         type="button"
                         className={`w-full rounded-md px-2.5 py-1.5 text-left text-xs ${
-                          activeLevel === l ? "bg-primary text-white" : "text-gray-600"
+                          availability === f.key ? "bg-primary text-white" : "text-gray-600"
                         }`}
                       >
-                        {l}
+                        {f.label}
                       </button>
                     </li>
                   ))}
@@ -448,8 +301,14 @@ export default function MarketplacePage() {
           <div className="flex-1">
             <div className="my-4 flex items-center justify-between gap-4">
               <p className="text-sm text-gray-500">
-                <span className="font-semibold text-gray-900">{filtered.length}</span> product
-                {filtered.length !== 1 ? "s" : ""} found
+                {isLoading || isFetching ? (
+                  "Loading products..."
+                ) : (
+                  <>
+                    <span className="font-semibold text-gray-900">{filtered.length}</span> product
+                    {filtered.length !== 1 ? "s" : ""} found
+                  </>
+                )}
               </p>
               {hasActiveFilters && (
                 <button
@@ -462,75 +321,123 @@ export default function MarketplacePage() {
               )}
             </div>
 
-            {visible.length === 0 ? (
+            {isError ? (
+              <div className="rounded-2xl border border-dashed border-red-200 bg-red-50 py-20 text-center text-sm text-red-500">
+                There was a problem loading the products. Please refresh and try again.
+              </div>
+            ) : isLoading ? (
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="h-72 animate-pulse rounded-2xl border border-gray-200 bg-gray-50"
+                  />
+                ))}
+              </div>
+            ) : visible.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-gray-200 py-20 text-center text-sm text-gray-400">
                 No products found. Try adjusting your filters.
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
-                {visible.map((p) => (
-                  <div
-                    key={p.id}
-                    className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white"
-                  >
-                    {p.badge && (
-                      <span
-                        className={`absolute top-3 left-3 z-10 rounded-full px-2 py-0.5 text-[10px] font-bold ${BADGE_STYLE[p.badge]}`}
-                      >
-                        {p.badge}
-                      </span>
-                    )}
+                {visible.map((p) => {
+                  const isOnSale = p.discountPercentage > 0;
+                  const isLowStock = p.stock > 0 && p.stock <= p.lowStockAlert;
+                  const outOfStock = p.stock <= 0;
+                  const badge = outOfStock
+                    ? { label: "Out of Stock", cls: "bg-gray-500 text-white" }
+                    : isOnSale
+                      ? { label: `${p.discountPercentage}% Off`, cls: "bg-primary text-white" }
+                      : isLowStock
+                        ? { label: "Low Stock", cls: "bg-amber-500 text-white" }
+                        : null;
 
-                    <Link href={`${ROUTES.MARKETPLACE}/${p.id}`}>
-                      <div className="from-primary/5 flex h-44 items-center justify-center bg-linear-to-br to-blue-50">
-                        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white ring-4 ring-white">
-                          <ShoppingCart className="text-primary h-8 w-8" />
+                  return (
+                    <div
+                      key={p._id}
+                      className="group relative flex flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white"
+                    >
+                      {badge && (
+                        <span
+                          className={`absolute top-3 left-3 z-10 rounded-full px-2 py-0.5 text-[10px] font-bold ${badge.cls}`}
+                        >
+                          {badge.label}
+                        </span>
+                      )}
+
+                      <Link href={`${ROUTES.MARKETPLACE}/${p.slug}`}>
+                        <div className="from-primary/5 relative flex h-44 items-center justify-center overflow-hidden bg-linear-to-br to-blue-50">
+                          {p.images?.[0] ? (
+                            <Image
+                              src={p.images[0]}
+                              alt={p.title}
+                              fill
+                              className="object-cover"
+                              sizes="(max-width: 768px) 100vw, 33vw"
+                            />
+                          ) : (
+                            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-white ring-4 ring-white">
+                              <ShoppingCart className="text-primary h-8 w-8" />
+                            </div>
+                          )}
                         </div>
-                      </div>
-                    </Link>
-
-                    <div className="flex flex-1 flex-col p-4">
-                      <p className="text-primary mb-0.5 text-[10px] font-semibold tracking-wide uppercase">
-                        {p.category} · {p.level}
-                      </p>
-
-                      <Link
-                        href={`${ROUTES.MARKETPLACE}/${p.id}`}
-                        className="mb-1 text-sm font-bold text-gray-900"
-                      >
-                        {p.name}
                       </Link>
 
-                      <p className="mb-3 flex-1 text-xs text-gray-500">{p.desc}</p>
+                      <div className="flex flex-1 flex-col p-4">
+                        <p className="text-primary mb-0.5 text-[10px] font-semibold tracking-wide uppercase">
+                          {p.category?.name ?? "Uncategorized"}
+                          {p.brand ? ` · ${p.brand}` : ""}
+                        </p>
 
-                      <div className="mb-3 flex items-center justify-between">
-                        <span className="text-base font-extrabold text-gray-900">
-                          ${p.price.toFixed(2)}
-                        </span>
-                        <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600">
-                          Ready to ship
-                        </span>
-                      </div>
+                        <Link
+                          href={`${ROUTES.MARKETPLACE}/${p.slug}`}
+                          className="mb-1 line-clamp-1 text-sm font-bold text-gray-900"
+                        >
+                          {p.title}
+                        </Link>
 
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          type="button"
-                          onClick={() => handleAddToCart(p)}
-                          className="border-primary text-primary rounded-md border px-3 py-2 text-xs font-semibold"
-                        >
-                          Add to Cart
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => handleBuyNow(p)}
-                          className="bg-primary rounded-md px-3 py-2 text-xs font-semibold text-white"
-                        >
-                          Buy Now
-                        </button>
+                        <p className="mb-3 line-clamp-2 flex-1 text-xs text-gray-500">
+                          {p.description}
+                        </p>
+
+                        <div className="mb-3 flex items-center justify-between">
+                          <div className="flex items-baseline gap-1.5">
+                            <span className="text-base font-extrabold text-gray-900">
+                              ${p.price.toFixed(2)}
+                            </span>
+                            {isOnSale && (
+                              <span className="text-xs text-gray-400 line-through">
+                                ${p.compareAtPrice.toFixed(2)}
+                              </span>
+                            )}
+                          </div>
+                          <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[10px] font-medium text-gray-600">
+                            {outOfStock ? "Unavailable" : "Ready to ship"}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2">
+                          <button
+                            type="button"
+                            disabled={outOfStock}
+                            onClick={() => handleAddToCart(p)}
+                            className="border-primary text-primary rounded-md border px-3 py-2 text-xs font-semibold disabled:cursor-not-allowed disabled:opacity-40"
+                          >
+                            Add to Cart
+                          </button>
+                          <button
+                            type="button"
+                            disabled={outOfStock}
+                            onClick={() => handleBuyNow(p)}
+                            className="bg-primary rounded-md px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+                          >
+                            Buy Now
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
