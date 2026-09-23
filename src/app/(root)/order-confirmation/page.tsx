@@ -13,7 +13,11 @@ function OrderConfirmedContent() {
   const address = params.get("address") ?? "";
   const postal = params.get("postal") ?? "";
   const phone = params.get("phone") ?? "";
-  const method = params.get("method") === "cod" ? "Cash on Delivery" : "Card";
+  const rawMethod = params.get("method");
+  const method =
+    rawMethod === "cash_on_delivery" || rawMethod === "cod"
+      ? "Cash on Delivery"
+      : "Card (Stripe)";
   const total = params.get("total") ?? "0.00";
   const subtotal = params.get("subtotal") ?? "0.00";
   const shipping = params.get("shipping") ?? "0.00";
@@ -24,7 +28,8 @@ function OrderConfirmedContent() {
   for (let i = 0; i < seed.length; i++) {
     hash = (hash * 31 + seed.charCodeAt(i)) % 100000;
   }
-  const orderId = `ORD-2026-${String(hash).padStart(5, "0")}`;
+  const customOrderId = params.get("orderId");
+  const orderId = customOrderId || `ORD-2026-${String(hash).padStart(5, "0")}`;
   const date = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "long",

@@ -18,6 +18,7 @@ import { useAppSelector, useAppDispatch } from "@/store/hooks";
 import { logout } from "@/store/slices/authSlice";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { clearCart } from "@/store/slices/cartSlice";
 
 const NAV_LINKS = [
   { label: "Home", href: ROUTES.HOME },
@@ -132,6 +133,7 @@ export default function Header() {
                     <button
                       onClick={() => {
                         dispatch(logout());
+                        dispatch(clearCart());
                         setDropdownOpen(false);
                       }}
                       className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50"
@@ -232,6 +234,7 @@ export default function Header() {
               <button
                 onClick={() => {
                   dispatch(logout());
+                  dispatch(clearCart())
                   setMobileOpen(false);
                 }}
                 className="mt-1 w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-500 hover:bg-red-50"

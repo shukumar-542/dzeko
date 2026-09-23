@@ -3,21 +3,36 @@
 import { use, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import { ArrowLeft, ShoppingCart, Heart, Truck, ShieldCheck, RefreshCw, Check } from "lucide-react";
 import { ROUTES } from "@/constants";
 import { useAppDispatch } from "@/store/hooks";
-import { addToCart } from "@/store/slices/cartSlice";
-import { useGetProductBySlugQuery, useGetProductsQuery, type ProductVariant } from "@/store/apis";
+import { addToCart, setBuyNowItem } from "@/store/slices/cartSlice";
+import {
+  useGetProductBySlugQuery,
+  useGetProductsQuery,
+  useGetShippingSettingsQuery,
+  type ProductVariant,
+} from "@/store/apis";
 
 // NOTE: eta route folder [slug]/page.tsx hisebe hote hobe, karon backend
 // /products/{slug} diye product khoje, /products/{id} diye na.
-export default function ProductDetailPage({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = use(params);
+// params key "slug" (route folder [slug]) othoba "id" (route folder [id]) — dutoi accept kore
+export default function ProductDetailPage({
+  params,
+}: {
+  params: Promise<{ slug?: string; id?: string }>;
+}) {
+  const resolvedParams = use(params);
+  const slug = resolvedParams.slug ?? resolvedParams.id ?? "";
   const dispatch = useAppDispatch();
+  const router = useRouter();
 
   const { data, isLoading, isError } = useGetProductBySlugQuery(slug);
   const product = data?.data;
+
+  const { data: shippingSettingsData } = useGetShippingSettingsQuery();
+  const shippingSettings = shippingSettingsData?.data;
 
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
@@ -90,6 +105,22 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
     }
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
+  }
+
+  function handleBuyNow() {
+    if (!product) return;
+    dispatch(
+      setBuyNowItem({
+        id: selectedVariant?._id ?? product._id,
+        name: selectedVariant
+          ? `${product.title} (${selectedVariant.color} / ${selectedVariant.size})`
+          : product.title,
+        price: displayPrice,
+        category: product.category?.name ?? "Uncategorized",
+        quantity: qty,
+      })
+    );
+    router.push(ROUTES.CHECKOUT);
   }
 
   return (
@@ -254,6 +285,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
               {added ? "Added!" : "Add to Cart"}
             </button>
             <button
+              onClick={handleBuyNow}
               disabled={!inStock}
               className="bg-primary hover:bg-primary/90 rounded-md py-3 text-sm font-semibold text-white duration-200 disabled:cursor-not-allowed disabled:opacity-40"
             >
@@ -329,11 +361,11 @@ export default function ProductDetailPage({ params }: { params: Promise<{ slug: 
           {[
             {
               title: "Delivery Time",
-              body: "Standard delivery within 3-5 business days. Express shipping available at checkout.",
+              body: `Standard delivery within ${shippingSettings?.estimatedDeliveryDays ?? "2-4 business days"}. Tracked delivery available.`,
             },
             {
               title: "Shipping Cost",
-              body: "Free shipping on all orders over $50. Standard shipping $5.99 for orders under $50.",
+              body: `Free shipping on orders over $${shippingSettings?.freeShippingThreshold ?? 30}. Standard shipping $${shippingSettings?.defaultShippingFee ?? 5} for orders under $${shippingSettings?.freeShippingThreshold ?? 30}.`,
             },
             {
               title: "Return Policy",

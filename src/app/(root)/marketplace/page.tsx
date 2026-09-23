@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { ChevronRight, Search, ShoppingCart, SlidersHorizontal, X } from "lucide-react";
 import { ROUTES } from "@/constants";
 import { useAppDispatch } from "@/store/hooks";
-import { addToCart } from "@/store/slices/cartSlice";
+import { addToCart, setBuyNowItem } from "@/store/slices/cartSlice";
 import PageHero from "@/components/common/PageHero";
 import { useGetProductsQuery, type Product } from "@/store/apis";
 
@@ -85,7 +85,15 @@ export default function MarketplacePage() {
   }
 
   function handleBuyNow(product: Product) {
-    handleAddToCart(product);
+    dispatch(
+      setBuyNowItem({
+        id: product._id,
+        name: product.title,
+        price: product.price,
+        category: product.category?.name ?? "Uncategorized",
+        quantity: 1,
+      })
+    );
     router.push(ROUTES.CHECKOUT);
   }
 
@@ -271,6 +279,7 @@ export default function MarketplacePage() {
                 </ul>
               </div>
 
+              {/* Availability (inStock / hasDiscount from API) */}
               <div className="mb-4">
                 <h4 className="mb-2 text-xs font-semibold tracking-wide text-gray-500 uppercase">
                   Availability
@@ -323,7 +332,7 @@ export default function MarketplacePage() {
 
             {isError ? (
               <div className="rounded-2xl border border-dashed border-red-200 bg-red-50 py-20 text-center text-sm text-red-500">
-                There was a problem loading the products. Please refresh and try again.
+                Products load korte problem hoyeche. Refresh kore abar try koro.
               </div>
             ) : isLoading ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
