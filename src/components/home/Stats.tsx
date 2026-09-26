@@ -1,24 +1,30 @@
+"use client";
+
+import { useGetStashQuery } from "@/store/apis/blogApi";
 import { BookOpen, FileText, Layers, Brain } from "lucide-react";
 
 const Stats = () => {
+  const { data: stashData, isLoading } = useGetStashQuery();
+
+
   const stats = [
     {
-      value: "20,000+",
+      value: stashData?.data?.practiceQuestions ?? 0,
       label: "Practice Questions",
       icon: BookOpen,
     },
     {
-      value: "50+",
+      value: stashData?.data?.fullExamTests ?? 0,
       label: "Full Exam Tests",
       icon: FileText,
     },
     {
-      value: "15+",
+      value: stashData?.data?.subjectsCovered ?? 0,
       label: "Subjects Covered",
       icon: Layers,
     },
     {
-      value: "3",
+      value: stashData?.data?.practiceModes ?? 0,
       label: "Practice Modes",
       icon: Brain,
     },
@@ -41,7 +47,9 @@ const Stats = () => {
               </div>
 
               {/* value */}
-              <p className="text-primary text-3xl font-extrabold">{s.value}</p>
+              <p className="text-primary text-3xl font-extrabold">
+                {s.value}
+              </p>
 
               {/* label */}
               <p className="mt-1 text-sm text-gray-500">{s.label}</p>

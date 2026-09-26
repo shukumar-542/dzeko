@@ -14,6 +14,7 @@ import storage from "./persistStorage";
 import authReducer from "./slices/authSlice";
 import cartReducer from "./slices/cartSlice";
 import uiReducer from "./slices/uiSlice";
+import { blogApi } from "./apis/blogApi";
 
 // Auth ("user", "token", "isAuthenticated") persist kora hocche.
 const authPersistConfig = {
@@ -38,6 +39,7 @@ const rootReducer = combineReducers({
   [productsApi.reducerPath]: productsApi.reducer,
   [shippingApi.reducerPath]: shippingApi.reducer,
   [ordersApi.reducerPath]: ordersApi.reducer,
+  [blogApi.reducerPath]: blogApi.reducer,
 });
 
 export const store = configureStore({
@@ -52,7 +54,8 @@ export const store = configureStore({
       authApi.middleware,
       productsApi.middleware,
       shippingApi.middleware,
-      ordersApi.middleware
+      ordersApi.middleware,
+      blogApi.middleware
     ),
 });
 

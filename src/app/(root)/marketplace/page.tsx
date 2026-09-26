@@ -332,7 +332,7 @@ export default function MarketplacePage() {
 
             {isError ? (
               <div className="rounded-2xl border border-dashed border-red-200 bg-red-50 py-20 text-center text-sm text-red-500">
-                Products load korte problem hoyeche. Refresh kore abar try koro.
+                Something went wrong while fetching products. Please try again later.
               </div>
             ) : isLoading ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">

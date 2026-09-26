@@ -12,7 +12,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const CITY_OPTIONS = ["Dhaka", "Chattogram", "Khulna", "Rajshahi", "Sylhet", "Barishal"];
+// const CITY_OPTIONS = ["Dhaka", "Chattogram", "Khulna", "Rajshahi", "Sylhet", "Barishal"];
 
 const schema = z
   .object({
@@ -22,6 +22,8 @@ const schema = z
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")
+      .regex(/[a-z]/, "Must include a lowercase letter")
+      .regex(/[^A-Za-z0-9]/, "Must include a special character")
       .regex(/[A-Z]/, "Must include an uppercase letter")
       .regex(/[0-9]/, "Must include a number"),
     confirmPassword: z.string().min(1, "Please confirm your password"),
@@ -62,6 +64,7 @@ export default function RegisterPage() {
         `${ROUTES.VERIFY_CODE}?email=${encodeURIComponent(data.email)}&mode=verify-email`
       );
     } catch (error) {
+      console.log(error)
       toast.error(getErrorMessage(error, "Registration failed. Please try again."));
     }
   };
@@ -133,26 +136,19 @@ export default function RegisterPage() {
           <label className="mb-1.5 block text-sm font-medium text-gray-700">City</label>
           <div className="relative">
             <MapPin className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <select
+            <input
+              type="text"
+              autoComplete="address-level2"
               {...register("city")}
-              defaultValue=""
+              placeholder="Enter your city"
               className={cn(
-                "w-full appearance-none rounded-lg border py-2.5 pr-8 pl-10 text-sm text-gray-900 transition outline-none",
+                "w-full rounded-lg border py-2.5 pr-3.5 pl-10 text-sm text-gray-900 placeholder-gray-400 transition outline-none",
                 "focus:border-primary focus:ring-primary/20 focus:ring-2",
                 errors.city
                   ? "border-red-400 bg-red-50 focus:border-red-400 focus:ring-red-400/20"
                   : "border-gray-200 bg-white"
               )}
-            >
-              <option value="" disabled>
-                Select your city
-              </option>
-              {CITY_OPTIONS.map((city) => (
-                <option key={city} value={city}>
-                  {city}
-                </option>
-              ))}
-            </select>
+            />
           </div>
           {errors.city && (
             <p className="mt-1 flex items-center gap-1 text-xs text-red-500">
@@ -278,7 +274,7 @@ export default function RegisterPage() {
         <div className="h-px flex-1 bg-gray-200" />
       </div>
       <div className="space-y-3">
-        <button className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
+        {/* <button className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
           <svg className="h-4 w-4" viewBox="0 0 24 24">
             <path
               d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -298,7 +294,7 @@ export default function RegisterPage() {
             />
           </svg>
           Continue with Google
-        </button>
+        </button> */}
         {/* <button className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-200 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
           <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
             <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />

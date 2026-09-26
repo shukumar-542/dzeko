@@ -227,18 +227,12 @@ export default function CheckoutPage() {
       }
 
       // 1. Stripe Checkout redirect
-      if (paymentMethod === "stripe") {
+       if (paymentMethod === "stripe") {
         const stripeUrl =
           response.data?.checkoutUrl || response.data?.url || response.data?.sessionUrl;
         if (stripeUrl) {
-          const newTab = window.open(stripeUrl, "_blank", "noopener,noreferrer");
-          if (newTab) {
-            toast.success("Stripe checkout opened in a new tab.");
-          } else {
-            // popup blocked fallback
-            toast.error("Popup blocked. Please allow popups, or click below to continue.");
-            window.location.href = stripeUrl;
-          }
+          toast.success("Redirecting to secure Stripe checkout...");
+          window.location.href = stripeUrl;
           return;
         }
       }
@@ -246,7 +240,6 @@ export default function CheckoutPage() {
       // 2. Cash on Delivery or completed order
       toast.success(response.message || "Order placed successfully!");
       const orderId = response.data?._id || response.data?.id || response.data?.orderId || "";
-
       router.push(
         `${ROUTES.ORDER_CONFIRMATION}?method=${paymentMethod}&name=${encodeURIComponent(
           form.fullName
