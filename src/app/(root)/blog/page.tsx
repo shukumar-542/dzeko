@@ -166,7 +166,7 @@ export default function BlogPage() {
 
                     {
                       post?.image ?
-                        <Image src={post.image} width={320} height={192} alt={post.title} className="h-48 w-[30%] object-cover" /> :
+                        <Image src={post.image} width={900} height={192} alt={post.title} className="h-48  object-cover" /> :
                         <div
                           className={`flex h-40 items-center justify-center bg-linear-to-br ${CARD_GRADIENTS[i % CARD_GRADIENTS.length]}`}
                         >

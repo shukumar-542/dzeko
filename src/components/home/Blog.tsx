@@ -1,5 +1,10 @@
+"use client"
 import { ChevronRight } from "lucide-react";
 import Titlebar from "../common/Titlebar";
+import { useGetBlogListQuery } from "@/store/apis";
+import Image from "next/image";
+import { ROUTES } from "@/constants";
+import Link from "next/link";
 
 const posts = [
   {
@@ -29,6 +34,10 @@ const posts = [
 ];
 
 function Blog() {
+  const { data, isLoading } = useGetBlogListQuery({ status: "published", limit: 3 });
+
+  console.log(data?.data?.data);
+
   return (
     <section className="bg-blue-50/60 py-16 md:py-20">
       <div className="app-container">
@@ -38,20 +47,31 @@ function Blog() {
         />
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-          {posts.map((p) => (
+          {data?.data?.data?.map((post: any) => (
             <div
-              key={p.title}
+              key={post._id}
               className="flex flex-col overflow-hidden rounded-xl border border-gray-200 bg-white"
             >
-              <div className={`h-48 bg-linear-to-br ${p.color}`} />
+              <Image
+                src={post.image}
+                width={900}
+                height={192}
+                alt={post.title}
+                className="h-48 w-full object-cover"
+              />
               <div className="flex flex-1 flex-col p-5">
-                <h4 className="mb-2 font-bold text-gray-900">{p.title}</h4>
-                <p className="mb-3 flex-1 text-sm text-gray-500">{p.excerpt}</p>
+                <h4 className="mb-2 font-bold text-gray-900">{post.title}</h4>
+                <p className="mb-3 flex-1 text-sm text-gray-500">{post.excerpt}</p>
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-400">{p.date}</span>
-                  <button className="text-primary flex items-center gap-1 text-xs font-medium hover:underline">
-                    Read More <ChevronRight className="h-3 w-3" />
-                  </button>
+                  <span className="text-xs text-gray-400">{post.date}</span>
+                  <Link
+                    key={post._id}
+                    href={`${ROUTES.BLOG}/${post._id}`}>
+                    <button className="text-primary flex items-center gap-1 text-xs font-medium hover:underline">
+                      Read More <ChevronRight className="h-3 w-3" />
+                    </button>
+                  </Link>
+
                 </div>
               </div>
             </div>
