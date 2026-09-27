@@ -30,7 +30,7 @@ const Banner = () => {
           {/* actions */}
           <div className="flex flex-wrap gap-3">
             <Link
-              href={ROUTES.REGISTER}
+              href={ROUTES.PACKAGES}
               className="from-primary to-primary2 hover:from-primary/90 hover:to-primary2/90 flex items-center gap-2 rounded-lg bg-linear-to-r px-5 py-3 text-sm font-medium text-white shadow-sm transition duration-200"
             >
               <Monitor className="h-4 w-4" />
