@@ -1,6 +1,7 @@
 "use client";
 
 import { ROUTES } from "@/constants";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
 import { useShipping } from "@/hooks/useShipping";
 import {
   getErrorMessage,
@@ -44,8 +45,12 @@ export default function CheckoutPage() {
   const router = useRouter();
   const dispatch = useAppDispatch();
 
-  // Auth state
-  const { isAuthenticated, user } = useAppSelector((s) => s.auth);
+  // Auth guard: check authentication on entry
+  const { isAuthenticated, isChecking } = useAuthGuard({
+    redirectUrl: ROUTES.CHECKOUT,
+    message: "Please log in to proceed to checkout.",
+  });
+  const user = useAppSelector((s) => s.auth.user);
 
   // Cart state
   const cartItems = useAppSelector((s) => s.cart.items);
@@ -99,11 +104,14 @@ export default function CheckoutPage() {
   // Sync user info into form if logged in
   useEffect(() => {
     if (user) {
-      setForm((prev) => ({
-        ...prev,
-        fullName: prev.fullName || user.name || "",
-        email: prev.email || user.email || "",
-      }));
+      const timer = setTimeout(() => {
+        setForm((prev) => ({
+          ...prev,
+          fullName: prev.fullName || user.name || "",
+          email: prev.email || user.email || "",
+        }));
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [user]);
 
@@ -253,6 +261,15 @@ export default function CheckoutPage() {
     } catch (err: unknown) {
       toast.error(getErrorMessage(err, "Failed to place order. Please try again."));
     }
+  }
+
+  if (isChecking || !isAuthenticated) {
+    return (
+      <section className="app-container flex min-h-[60vh] flex-col items-center justify-center py-16">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="mt-3 text-sm font-medium text-gray-500">Checking authentication...</p>
+      </section>
+    );
   }
 
   return (

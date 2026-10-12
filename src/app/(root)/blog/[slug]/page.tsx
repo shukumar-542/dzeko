@@ -3,9 +3,10 @@
 import { use, useMemo } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { CalendarDays, Clock, User, ChevronRight } from "lucide-react";
+import { CalendarDays, Clock, User, ChevronRight, Loader2 } from "lucide-react";
 import { ROUTES } from "@/constants";
 import { useGetBlogDetailsQuery, useGetBlogListQuery } from "@/store/apis";
+import { useAuthGuard } from "@/hooks/useAuthGuard";
 
 const CATEGORY_COLORS: Record<string, string> = {
   "Exam Preparation": "bg-blue-100 text-blue-700",
@@ -34,16 +35,22 @@ export default function BlogDetailPage({
 }: {
   params: Promise<{ blogId?: string; id?: string; slug?: string }>;
 }) {
+  const { isAuthenticated, isChecking } = useAuthGuard({
+    message: "Please log in to read this article.",
+  });
+
   const resolvedParams = use(params);
   const blogId = resolvedParams.blogId ?? resolvedParams.id ?? resolvedParams.slug ?? "";
 
-  const { data, isLoading, isError } = useGetBlogDetailsQuery(blogId, { skip: !blogId });
+  const { data, isLoading, isError } = useGetBlogDetailsQuery(blogId, {
+    skip: !blogId || !isAuthenticated,
+  });
   const post = data?.data;
 
   // Sidebar-er "Most Read" / "Related" er jonno shob published post fetch
   const { data: listData } = useGetBlogListQuery(
     { status: "published", limit: 20 },
-    { skip: !post }
+    { skip: !post || !isAuthenticated }
   );
   const allPosts = useMemo(() => listData?.data?.data ?? [], [listData]);
 
@@ -64,6 +71,15 @@ export default function BlogDetailPage({
     });
     return Array.from(map.entries());
   }, [allPosts]);
+
+  if (isChecking || !isAuthenticated) {
+    return (
+      <div className="flex min-h-[60vh] flex-col items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="mt-3 text-sm font-medium text-gray-500">Checking authentication...</p>
+      </div>
+    );
+  }
 
   if (isError) notFound();
 
