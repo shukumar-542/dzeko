@@ -24,7 +24,7 @@ export const ROUTES = {
   TERMS_OF_SERVICE: "/terms-of-service",
 } as const;
 
-export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://testora-backend-umtn.onrender.com/api/v1";
+export const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://13.50.88.233:5000/api/v1";
 
 export const PAGINATION_DEFAULTS = {
   PAGE: 1,
