@@ -6,7 +6,6 @@ import { CalendarDays, Clock, ChevronRight, Loader2 } from "lucide-react";
 import { ROUTES } from "@/constants";
 import PageHero from "@/components/common/PageHero";
 import { useGetBlogListQuery } from "@/store/apis";
-import { useAuthGuard } from "@/hooks/useAuthGuard";
 import Image from "next/image";
 
 const CATEGORY_COLORS: Record<string, string> = {
@@ -38,18 +37,13 @@ function formatDate(dateStr: string) {
 }
 
 export default function BlogPage() {
-  const { isAuthenticated, isChecking } = useAuthGuard({
-    redirectUrl: ROUTES.BLOG,
-    message: "Please log in to view the blog.",
-  });
-
+  
   const [activeCategory, setActiveCategory] = useState("All Articles");
   const [visibleCount, setVisibleCount] = useState(6);
 
   // Shudhu "published" post dekhano hocche
   const { data, isLoading } = useGetBlogListQuery(
     { status: "published", limit: 100 },
-    { skip: !isAuthenticated }
   );
   const posts = useMemo(() => data?.data?.data ?? [], [data]);
 
@@ -69,14 +63,14 @@ export default function BlogPage() {
 
   const visible = filtered.slice(0, visibleCount);
 
-  if (isChecking || !isAuthenticated) {
-    return (
-      <div className="flex min-h-[60vh] flex-col items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="mt-3 text-sm font-medium text-gray-500">Checking authentication...</p>
-      </div>
-    );
-  }
+  // if (isChecking || !isAuthenticated) {
+  //   return (
+  //     <div className="flex min-h-[60vh] flex-col items-center justify-center">
+  //       <Loader2 className="h-8 w-8 animate-spin text-primary" />
+  //       <p className="mt-3 text-sm font-medium text-gray-500">Checking authentication...</p>
+  //     </div>
+  //   );
+  // }
 
   return (
     <section className="flex-1">

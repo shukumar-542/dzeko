@@ -6,8 +6,8 @@ const AppScreens = () => {
     <section className="py-16 md:py-20">
       <div className="app-container">
         <Titlebar
-          title="Experience Our Mobile App"
-          description="A powerful learning experience right in your pocket"
+          title="Përjetoni aplikacionin tonë celular" // Experience Our Mobile App
+          description="Një përvojë e fuqishme mësimi, gjithmonë me ju" // A powerful learning experience right in your pocket
         />
 
         <div className="mx-auto mt-14 w-full max-w-2xl">
@@ -30,7 +30,7 @@ const AppScreens = () => {
             <div className="flex min-w-0 flex-[1.08] justify-center">
               <div className="w-full max-w-56">
                 <Image
-                  src="/phone2.png"
+                  src="/phone22.png"
                   alt="Student Dashboard"
                   width={420}
                   height={900}
@@ -47,7 +47,7 @@ const AppScreens = () => {
             <div className="flex min-w-0 flex-1 justify-center">
               <div className="w-full max-w-48">
                 <Image
-                  src="/phone1.png"
+                  src="/phone11.png"
                   alt="Test Archive"
                   width={420}
                   height={900}

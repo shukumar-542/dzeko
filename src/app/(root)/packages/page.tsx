@@ -3,51 +3,53 @@ import PageHero from "@/components/common/PageHero";
 
 const packages = [
   {
-    name: "Semimatura Package",
-    description: "Preparation for semimatura with quizzes and practice tests.",
+    name: "Paketa e Semimaturës", // Semimatura Package
+    description: "Përgatitje për Semimaturën me kuize dhe teste praktike.", // Preparation for semimatura with quizzes and practice tests.
     features: [
-      "Subject-based questions",
-      "Past exam tests",
-      "Practice quizzes",
-      "Performance tracking",
+      "Pyetje sipas lëndëve", // Subject-based questions
+      "Teste nga provimet e viteve të kaluara", // Past exam tests
+      "Kuize praktike", // Practice quizzes
+      "Ndjekja e performancës", // Performance tracking
     ],
     featured: false,
   },
   {
-    name: "Matura Package",
-    description: "Preparation for the national matura exam with subject practice and simulations.",
-    features: [
-      "Comprehensive subject coverage",
-      "Full exam simulations",
-      "Detailed analytics",
-      "Progress monitoring",
-    ],
-    featured: false,
-  },
-  {
-    name: "Entrance Exam Package",
+    name: "Paketa e Maturës", // Matura Package
     description:
-      "Preparation for university entrance exams depending on the selected faculty or department.",
+      "Përgatitje për provimin kombëtar të Maturës me ushtrime sipas lëndëve dhe simulime.", // Preparation for the national matura exam with subject practice and simulations.
     features: [
-      "Faculty-specific content",
-      "Select your study direction",
-      "Specialized practice tests",
-      "Targeted preparation",
+      "Mbulim gjithëpërfshirës i lëndëve", // Comprehensive subject coverage
+      "Simulime të plota të provimit", // Full exam simulations
+      "Analiza të detajuara", // Detailed analytics
+      "Monitorimi i përparimit", // Progress monitoring
     ],
-    note: "* Select your specific faculty after subscribing",
     featured: false,
   },
   {
-    name: "Full Access Package",
-    description: "Complete access to Matura preparation plus one entrance exam of your choice.",
+    name: "Paketa e Provimeve Pranuese", // Entrance Exam Package
+    description:
+      "Përgatitje për provimet pranuese në universitet, sipas fakultetit ose departamentit të zgjedhur.", // Preparation for university entrance exams depending on the selected faculty or department.
     features: [
-      "Complete Matura preparation",
-      "One entrance exam of choice",
-      "All practice modes",
-      "Premium support",
+      "Përmbajtje specifike për fakultetin", // Faculty-specific content
+      "Zgjidhni drejtimin e studimit", // Select your study direction
+      "Teste praktike të specializuara", // Specialized practice tests
+      "Përgatitje e fokusuar", // Targeted preparation
     ],
-    note: "Does not include Semimatura or all entrance exams",
-    badge: "Featured",
+    note: "* Zgjidhni fakultetin tuaj pas abonimit", // Select your specific faculty after subscribing
+    featured: false,
+  },
+  {
+    name: "Paketa me Qasje të Plotë", // Full Access Package
+    description:
+      "Qasje e plotë në përgatitjen për Maturën, plus një provim pranues sipas zgjedhjes suaj.", // Complete access to Matura preparation plus one entrance exam of your choice.
+    features: [
+      "Përgatitje e plotë për Maturën", // Complete Matura preparation
+      "Një provim pranues sipas zgjedhjes", // One entrance exam of choice
+      "Të gjitha mënyrat e ushtrimit", // All practice modes
+      "Mbështetje premium", // Premium support
+    ],
+    note: "Nuk përfshin Semimaturën ose të gjitha provimet pranuese", // Does not include Semimatura or all entrance exams
+    badge: "E rekomanduar", // Featured
     featured: true,
   },
 ];
@@ -57,8 +59,8 @@ export default function PackagesPage() {
     <section className="flex-1">
       {/* Hero */}
       <PageHero
-        title="Choose Your Package"
-        description="Select the package that best fits your exam preparation needs"
+        title="Zgjidhni Paketën Tuaj" // Choose Your Package
+        description="Zgjidhni paketën që i përshtatet më së miri nevojave tuaja për përgatitjen e provimeve" // Select the package that best fits your exam preparation needs
       />
 
       {/* Packages grid */}
@@ -80,17 +82,24 @@ export default function PackagesPage() {
             )}
 
             <div className="flex flex-1 flex-col">
-              <h3 className={`text-lg font-bold ${pkg.featured ? "text-white" : "text-gray-900"}`}>
+              <h3
+                className={`text-lg font-bold ${pkg.featured ? "text-white" : "text-gray-900"}`}
+              >
                 {pkg.name}
               </h3>
 
-              <p className={`mt-2 text-sm ${pkg.featured ? "text-blue-50/90" : "text-gray-500"}`}>
+              <p
+                className={`mt-2 text-sm ${pkg.featured ? "text-blue-50/90" : "text-gray-500"}`}
+              >
                 {pkg.description}
               </p>
 
               <ul className="mt-3 flex flex-1 flex-col gap-2">
                 {pkg.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2.5 text-sm">
+                  <li
+                    key={feature}
+                    className="flex items-start gap-2.5 text-sm"
+                  >
                     <Check
                       className={`mt-0.5 h-4 w-4 shrink-0 ${
                         pkg.featured ? "text-blue-100" : "text-primary"
@@ -108,7 +117,9 @@ export default function PackagesPage() {
               {pkg.note && (
                 <div
                   className={`mt-3 rounded-md px-2 py-1.5 text-xs ${
-                    pkg.featured ? "bg-white text-gray-700" : "bg-gray-100 text-gray-500"
+                    pkg.featured
+                      ? "bg-white text-gray-700"
+                      : "bg-gray-100 text-gray-500"
                   }`}
                 >
                   {pkg.note}
@@ -123,7 +134,7 @@ export default function PackagesPage() {
                   : "border-primary text-primary"
               }`}
             >
-              Subscribe
+              Abonohu {/* Subscribe */}
             </button>
           </div>
         ))}

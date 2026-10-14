@@ -62,8 +62,14 @@ function LoginForm() {
 
   return (
     <div className="w-full max-w-100">
-      <h1 className="mb-1 text-2xl font-bold text-gray-900">Welcome to Testora</h1>
-      <p className="mb-6 text-sm text-gray-500">One account works on both Web and App</p>
+      <h1 className="mb-1 text-2xl font-bold text-gray-900">
+        Mirë se vini në Testora
+        {/* Welcome to Testora */}
+      </h1>
+      <p className="mb-6 text-sm text-gray-500">
+        Një llogari funksionon si në ueb, ashtu edhe në aplikacion
+        {/* One account works on both Web and App */}
+      </p>
 
       <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-4">
         {/* Email */}

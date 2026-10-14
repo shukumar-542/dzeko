@@ -42,8 +42,8 @@ function Blog() {
     <section className="bg-blue-50/60 py-16 md:py-20">
       <div className="app-container">
         <Titlebar
-          title="Latest from Our Blog"
-          description="Tips, strategies, and insights to help you succeed"
+          title="Të rejat nga blogu ynë" // Latest from Our Blog
+          description="Këshilla, strategji dhe informacione për t'ju ndihmuar të keni sukses" // Tips, strategies, and insights to help you succeed
         />
 
         <div className="grid grid-cols-1 gap-5 md:grid-cols-3">

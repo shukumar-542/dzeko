@@ -6,26 +6,25 @@ import { BookOpen, FileText, Layers, Brain } from "lucide-react";
 const Stats = () => {
   const { data: stashData, isLoading } = useGetStashQuery();
 
-
   const stats = [
     {
       value: stashData?.data?.practiceQuestions ?? 0,
-      label: "Practice Questions",
+      label: "Pyetje praktike", // Practice Questions
       icon: BookOpen,
     },
     {
       value: stashData?.data?.fullExamTests ?? 0,
-      label: "Full Exam Tests",
+      label: "Teste të plota provimi", // Full Exam Tests
       icon: FileText,
     },
     {
       value: stashData?.data?.subjectsCovered ?? 0,
-      label: "Subjects Covered",
+      label: "Lëndë të mbuluara", // Subjects Covered
       icon: Layers,
     },
     {
       value: stashData?.data?.practiceModes ?? 0,
-      label: "Practice Modes",
+      label: "Mënyra praktike", // Practice Modes
       icon: Brain,
     },
   ];

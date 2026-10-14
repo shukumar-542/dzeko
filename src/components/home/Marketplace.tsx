@@ -47,8 +47,8 @@ function Marketplace() {
     <section className="py-16 md:py-20">
       <div className="app-container">
         <Titlebar
-          title="Study Materials Marketplace"
-          description="Browse physical study materials, books, and resources to enhance your preparation"
+          title="Tregu i Materialeve Mësimore" // Study Materials Marketplace
+          description="Shfletoni materiale mësimore fizike, libra dhe burime për të përmirësuar përgatitjen tuaj" // Browse physical study materials, books, and resources to enhance your preparation
         />
 
         <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
@@ -58,7 +58,7 @@ function Marketplace() {
               className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm"
             >
               <div className="relative h-56 w-full overflow-hidden">
-                <Image src={product?.images[0]} alt={product?.name || "Product image"}  fill className="object-cover" />
+                <Image src={product?.images[0]} alt={product?.name || "Product image"} fill className="object-cover" />
               </div>
 
               <div className="p-4">

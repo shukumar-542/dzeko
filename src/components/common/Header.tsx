@@ -19,13 +19,15 @@ import { logout } from "@/store/slices/authSlice";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { clearCart } from "@/store/slices/cartSlice";
+import logo from "../../../public/icon.png";
+import Image from "next/image";
 
 const NAV_LINKS = [
-  { label: "Home", href: ROUTES.HOME },
-  { label: "About", href: ROUTES.ABOUT },
-  { label: "Packages", href: ROUTES.PACKAGES },
-  { label: "Marketplace", href: ROUTES.MARKETPLACE },
-  { label: "Blog", href: ROUTES.BLOG },
+  { label: "Kryefaqja", href: ROUTES.HOME }, // Home
+  { label: "Rreth nesh", href: ROUTES.ABOUT }, // About
+  { label: "Paketat", href: ROUTES.PACKAGES }, // Packages
+  { label: "Tregu", href: ROUTES.MARKETPLACE }, // Marketplace
+  { label: "Blog", href: ROUTES.BLOG }, // Blog
 ];
 
 export default function Header() {
@@ -53,7 +55,24 @@ export default function Header() {
   return (
     <nav className="sticky top-0 z-50 border-b border-gray-100 bg-white/95 backdrop-blur">
       <div className="app-container flex items-center justify-between py-3.5">
-        <Logo size="md" />
+        {/* <Logo size="md" /> */}
+        {/* <Logo size="md" /> */}
+
+        <Link href={ROUTES.HOME} className="flex items-center gap-2">
+          <Image
+            src={logo}
+            alt="Logoja e Testora" // Testora Logo
+            width={96}
+            height={96}
+            quality={100}
+            className="h-9 w-8 object-contain"
+            priority
+          />
+
+          <span className="text-xl font-bold tracking-tight text-gray-900">
+            Testora
+          </span>
+        </Link>
 
         {/* Desktop nav links */}
         <div className="hidden items-center gap-7 md:flex">
@@ -91,7 +110,9 @@ export default function Header() {
                 <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-600 text-xs font-bold text-white">
                   {user.name.charAt(0).toUpperCase()}
                 </div>
+
                 <span className="hidden font-medium sm:block">{user.name}</span>
+
                 <ChevronDown
                   className={`hidden h-3.5 w-3.5 text-gray-400 transition-transform sm:block ${dropdownOpen ? "rotate-180" : ""}`}
                 />
@@ -103,6 +124,7 @@ export default function Header() {
                     <p className="text-sm font-semibold text-gray-900">{user.name}</p>
                     <p className="truncate text-xs text-gray-400">{user.email}</p>
                   </div>
+
                   <div className="py-1">
                     <Link
                       href={ROUTES.ORDERS}
@@ -110,25 +132,28 @@ export default function Header() {
                       className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
                     >
                       <ShoppingBag className="h-4 w-4 text-gray-400" />
-                      My Orders
+                      Porositë e mia {/* My Orders */}
                     </Link>
+
                     <Link
                       href={ROUTES.PROFILE}
                       onClick={() => setDropdownOpen(false)}
                       className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
                     >
                       <UserCircle2 className="h-4 w-4 text-gray-400" />
-                      Account / Profile
+                      Llogaria / Profili {/* Account / Profile */}
                     </Link>
+
                     <Link
                       href={ROUTES.MY_PACKAGES}
                       onClick={() => setDropdownOpen(false)}
                       className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
                     >
                       <Package className="h-4 w-4 text-gray-400" />
-                      My Packages
+                      Paketat e mia {/* My Packages */}
                     </Link>
                   </div>
+
                   <div className="border-t border-gray-100 py-1">
                     <button
                       onClick={() => {
@@ -139,7 +164,7 @@ export default function Header() {
                       className="flex w-full items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50"
                     >
                       <LogOut className="h-4 w-4" />
-                      Logout
+                      Dilni {/* Logout */}
                     </button>
                   </div>
                 </div>
@@ -151,13 +176,14 @@ export default function Header() {
                 href={ROUTES.LOGIN}
                 className="hover:text-primary rounded-md px-4 py-2 text-sm font-medium text-gray-600 duration-200 hover:bg-blue-50"
               >
-                Login
+                Hyrje {/* Login */}
               </Link>
+
               <Link
                 href={ROUTES.REGISTER}
                 className="rounded-md bg-linear-to-r from-[#2360A5] to-[#4584CA] px-4 py-2 text-sm font-medium text-white transition duration-200 hover:from-[#2360A5]/90 hover:to-[#4584CA]/90"
               >
-                Register
+                Regjistrohu {/* Register */}
               </Link>
             </div>
           )}
@@ -166,7 +192,7 @@ export default function Header() {
           <button
             className="p-1.5 text-gray-600 hover:text-gray-900 md:hidden"
             onClick={() => setMobileOpen((o) => !o)}
-            aria-label="Toggle menu"
+            aria-label="Ndrysho menunë" // Toggle menu
           >
             {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -188,6 +214,7 @@ export default function Header() {
               </Link>
             ))}
           </div>
+
           {!isAuthenticated && (
             <div className="mt-3 flex gap-3 border-t border-gray-100 pt-3">
               <Link
@@ -195,32 +222,36 @@ export default function Header() {
                 onClick={() => setMobileOpen(false)}
                 className="flex-1 rounded-md border border-gray-200 py-2.5 text-center text-sm font-medium text-gray-700 hover:bg-gray-50"
               >
-                Login
+                Hyrje {/* Login */}
               </Link>
+
               <Link
                 href={ROUTES.REGISTER}
                 onClick={() => setMobileOpen(false)}
                 className="flex-1 rounded-md bg-blue-600 py-2.5 text-center text-sm font-semibold text-white hover:bg-blue-700"
               >
-                Register
+                Regjistrohu {/* Register */}
               </Link>
             </div>
           )}
+
           {isAuthenticated && user && (
             <div className="mt-3 border-t border-gray-100 pt-3">
               <div className="mb-2 flex items-center gap-3 px-3">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-bold text-white">
                   {user.name.charAt(0).toUpperCase()}
                 </div>
+
                 <div>
                   <p className="text-sm font-semibold text-gray-900">{user.name}</p>
                   <p className="truncate text-xs text-gray-400">{user.email}</p>
                 </div>
               </div>
+
               {[
-                { label: "My Orders", href: ROUTES.ORDERS },
-                { label: "Account / Profile", href: ROUTES.PROFILE },
-                { label: "My Packages", href: ROUTES.MY_PACKAGES },
+                { label: "Porositë e mia", href: ROUTES.ORDERS }, // My Orders
+                { label: "Llogaria / Profili", href: ROUTES.PROFILE }, // Account / Profile
+                { label: "Paketat e mia", href: ROUTES.MY_PACKAGES }, // My Packages
               ].map((item) => (
                 <Link
                   key={item.label}
@@ -231,15 +262,16 @@ export default function Header() {
                   {item.label}
                 </Link>
               ))}
+
               <button
                 onClick={() => {
                   dispatch(logout());
-                  dispatch(clearCart())
+                  dispatch(clearCart());
                   setMobileOpen(false);
                 }}
                 className="mt-1 w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-red-500 hover:bg-red-50"
               >
-                Logout
+                Dilni {/* Logout */}
               </button>
             </div>
           )}
